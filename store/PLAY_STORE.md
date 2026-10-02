@@ -129,9 +129,12 @@ Free software (GPL-3.0): the source code is on GitHub.
 
 1. **Upload key** (once, by the developer only; keep the file and passwords safe, never on GitHub):
    ```
-   keytool -genkeypair -v -keystore "%USERPROFILE%\carconso-upload.jks" -alias carconso -keyalg RSA -keysize 2048 -validity 10000
+   & "$env:JAVA_HOME\bin\keytool.exe" -genkeypair -v -keystore "$env:USERPROFILE\carconso-upload.jks" -alias carconso -keyalg RSA -keysize 2048 -validity 10000
    ```
-   (`keytool` is in the JDK's `bin` folder.) Then fill in `android/keystore.properties`:
+   (PowerShell. `keytool` is in the JDK's `bin` folder; if `JAVA_HOME` is not set, use the
+   full path of the JDK.) The name and organisation asked by keytool are stored in the
+   certificate, which anyone can read from the APK: a pseudonym is enough.
+   Then fill in `android/keystore.properties`:
    `storeFile`, `storePassword`, `keyAlias`, `keyPassword`.
 2. **Build** the signed bundle and APK:
    ```
