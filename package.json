@@ -1,0 +1,25 @@
+{
+  "name": "carconso",
+  "version": "1.0.0",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "description": "Fuel consumption and car cost tracker (website + Android app)",
+  "scripts": {
+    "build": "node scripts/build-www.mjs",
+    "android": "npm run build && npx cap sync android && npx cap run android",
+    "android:bundle": "npm run build && npx cap sync android && cd android && gradlew.bat bundleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/browser": "^8.0.4",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/filesystem": "^8.1.3",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/share": "^8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.2"
+  }
+}

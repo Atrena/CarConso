@@ -1,0 +1,14 @@
+# Local editor / Claude Code configuration
+.claude/
+
+# System files
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Android app (Capacitor)
+node_modules/
+www/
+*.jks
+*.keystore
+keystore.properties

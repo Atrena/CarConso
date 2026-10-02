@@ -1,0 +1,11 @@
+{
+  "appId": "io.github.atrena.carconso",
+  "appName": "CarConso",
+  "webDir": "www",
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "native",
+      "initialViewportFitValueHint": "cover"
+    }
+  }
+}

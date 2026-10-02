@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Security: the page only loads code from, and only talks to, itself
+       (Chart.js is bundled in vendor/). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-src 'none'; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>CarConso</title>
+  <meta name="description" content="Fuel consumption and car cost tracker">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Icons -->
+  <svg class="sprite" width="0" height="0" aria-hidden="true">
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 7h6M9 11h.01M12 11h.01M15 11h.01M9 14h.01M12 14h.01M15 14h.01M9 17h.01M12 17h.01M15 17h.01"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></symbol>
+    <symbol id="i-table" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 10v10"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s-6 7-6 11a6 6 0 0 0 12 0c0-4-6-11-6-11z"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 17h14M5 17a2 2 0 1 0 4 0M15 17a2 2 0 1 0 4 0M3 17v-4l2-5a2 2 0 0 1 1.9-1.4h10.2A2 2 0 0 1 19 8l2 5v4M3 13h18"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5A3.8 3.8 0 0 1 17.5 18z"/></symbol>
+  </svg>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo"><svg class="i"><use href="#i-drop"/></svg></span>
+      <div class="brand-text">
+        <h1>CarConso</h1>
+        <label class="vehicle-switch">
+          <span class="visually-hidden" data-i18n="topbar.vehicle">Vehicle</span>
+          <select id="vehicle-switch"></select>
+        </label>
+      </div>
+    </div>
+    <button type="button" class="top-btn" id="open-settings" data-i18n-aria-label="nav.settings" aria-label="Settings">
+      <svg class="i"><use href="#i-gear"/></svg>
+      <span class="dot" id="backup-dot" hidden></span>
+    </button>
+  </header>
+
+  <main>
+    <!-- ========== Fill-up ========== -->
+    <section id="tab-add" class="tab active" aria-labelledby="nav-add">
+      <form id="fill-form" novalidate>
+        <div class="page-head">
+          <h2 id="form-title">New fill-up</h2>
+        </div>
+
+        <div class="panel">
+          <label class="field">
+            <span data-i18n="common.date">Date</span>
+            <input type="date" id="f-date" required>
+          </label>
+
+          <div class="odo">
+            <label class="field">
+              <span data-i18n="fill.odometer">Odometer</span>
+              <div class="suffix"><input type="text" id="f-odometer" inputmode="decimal"><em class="unit-dist">km</em></div>
+            </label>
+            <span class="or" data-i18n="common.or">or</span>
+            <label class="field">
+              <span data-i18n="fill.distance">Distance driven</span>
+              <div class="suffix"><input type="text" id="f-distance" inputmode="decimal"><em class="unit-dist">km</em></div>
+            </label>
+          </div>
+          <p class="hint" id="odo-hint"></p>
+
+          <label class="switch">
+            <span class="switch-text">
+              <strong data-i18n="fill.full">Full tank</strong>
+              <small data-i18n="fill.fullHint">Tank filled to the top. Turn off for a partial fill-up.</small>
+            </span>
+            <input type="checkbox" id="f-full" checked>
+            <span class="switch-ui" aria-hidden="true"></span>
+          </label>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel-title" data-i18n="fill.fuel">Fuel</h3>
+          <div id="parts"></div>
+          <button type="button" id="add-part" class="btn ghost">
+            <svg class="i"><use href="#i-plus"/></svg><span data-i18n="fill.addFuel">Add a fuel (blend)</span>
+          </button>
+        </div>
+
+        <div class="preview" id="preview" aria-live="polite"></div>
+
+        <p class="error" id="form-error" role="alert"></p>
+
+        <div class="actions">
+          <button type="submit" class="btn primary" id="submit-btn">Save</button>
+          <button type="button" class="btn" id="cancel-edit" data-i18n="common.cancel" hidden>Cancel</button>
+          <button type="button" class="btn danger" id="delete-fill" data-i18n="common.delete" hidden>Delete</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ========== History ========== -->
+    <section id="tab-history" class="tab" aria-labelledby="nav-history">
+      <div class="page-head">
+        <h2 data-i18n="history.title">History</h2>
+        <p class="lead" data-i18n="history.lead">Tap a fill-up to edit it.</p>
+      </div>
+      <ul id="history" class="list"></ul>
+    </section>
+
+    <!-- ========== Expenses ========== -->
+    <section id="tab-expenses" class="tab" aria-labelledby="nav-expenses">
+      <form id="expense-form" novalidate>
+        <div class="page-head">
+          <h2 id="expense-title">New expense</h2>
+          <p class="lead" data-i18n="exp.lead">Service, insurance, tolls… one-off or recurring.</p>
+        </div>
+        <div class="panel">
+          <div class="grid-2">
+            <label class="field">
+              <span data-i18n="common.date">Date</span>
+              <input type="date" id="e-date" required>
+            </label>
+            <label class="field">
+              <span data-i18n="exp.category">Category</span>
+              <select id="e-category"></select>
+            </label>
+            <label class="field">
+              <span data-i18n="exp.amount">Amount</span>
+              <div class="suffix"><input type="text" id="e-amount" inputmode="decimal"><em class="unit-money">€</em></div>
+            </label>
+            <label class="field">
+              <span><span data-i18n="exp.note">Note</span> <small data-i18n="common.optional">(optional)</small></span>
+              <input type="text" id="e-note" maxlength="120" data-i18n-placeholder="exp.notePlaceholder">
+            </label>
+            <label class="field">
+              <span data-i18n="exp.repeat">Repeat</span>
+              <select id="e-recurrence"></select>
+            </label>
+            <label class="field" id="e-end-field" hidden>
+              <span><span data-i18n="exp.until">Until</span> <small data-i18n="common.optional">(optional)</small></span>
+              <input type="date" id="e-end">
+            </label>
+          </div>
+          <p class="hint" id="recurrence-hint"></p>
+        </div>
+        <p class="error" id="expense-error" role="alert"></p>
+        <div class="actions">
+          <button type="submit" class="btn primary" id="expense-submit">Add</button>
+          <button type="button" class="btn" id="expense-cancel" data-i18n="common.cancel" hidden>Cancel</button>
+          <button type="button" class="btn danger" id="expense-delete" data-i18n="common.delete" hidden>Delete</button>
+        </div>
+      </form>
+
+      <ul id="expenses" class="list spaced"></ul>
+    </section>
+
+    <!-- ========== Stats ========== -->
+    <section id="tab-stats" class="tab" aria-labelledby="nav-stats">
+      <div class="page-head">
+        <h2 data-i18n="stats.title">Statistics</h2>
+      </div>
+
+      <div class="chips" id="period" role="radiogroup" data-i18n-aria-label="period.label" aria-label="Period">
+        <button type="button" role="radio" data-period="1" data-i18n="period.1">1 month</button>
+        <button type="button" role="radio" data-period="3" data-i18n="period.3">3 months</button>
+        <button type="button" role="radio" data-period="12" data-i18n="period.12">1 year</button>
+        <button type="button" role="radio" data-period="all" data-i18n="period.all">All</button>
+      </div>
+
+      <div id="stats-empty" class="empty" data-i18n="stats.empty" hidden>No consumption in this period yet.</div>
+
+      <div id="stats-content">
+        <div class="hero" id="hero"></div>
+        <div class="cards" id="cards"></div>
+
+        <div class="panel">
+          <h3 class="panel-title" data-i18n="stats.consoChart">Consumption per fill-up</h3>
+          <div class="chart"><canvas id="chart-l100"></canvas></div>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel-title" data-i18n="stats.byFuel">By fuel / blend</h3>
+          <div class="table-wrap"><table id="group-table"></table></div>
+          <div class="chart"><canvas id="chart-groups"></canvas></div>
+          <div class="table-wrap"><table id="fuel-table"></table></div>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel-title" id="price-chart-title">Price per litre</h3>
+          <div class="chart"><canvas id="chart-price"></canvas></div>
+        </div>
+      </div>
+
+      <div id="money-content">
+        <div class="panel">
+          <h3 class="panel-title" data-i18n="stats.monthly">Monthly spending</h3>
+          <div class="chart"><canvas id="chart-monthly"></canvas></div>
+        </div>
+        <div class="panel">
+          <h3 class="panel-title" data-i18n="stats.byCategory">Expenses by category</h3>
+          <div class="table-wrap"><table id="category-table"></table></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 class="panel-title" data-i18n="stats.forecast">Forecast</h3>
+        <div class="cards flat" id="forecast"></div>
+      </div>
+    </section>
+
+    <!-- ========== Simulator ========== -->
+    <section id="tab-sim" class="tab" aria-labelledby="nav-sim">
+      <div class="page-head">
+        <h2 data-i18n="sim.title">Which fuel should I choose?</h2>
+        <p class="lead" data-i18n="sim.lead">Enter the pump prices: the ranking uses your real consumption for each fuel.</p>
+      </div>
+      <div class="panel">
+        <h3 class="panel-title" data-i18n="sim.prices">Pump prices</h3>
+        <div class="sim-prices" id="sim-prices"></div>
+      </div>
+      <div id="sim-result"></div>
+    </section>
+
+    <!-- ========== Settings ========== -->
+    <section id="tab-settings" class="tab">
+      <div class="page-head">
+        <h2 data-i18n="settings.title">Settings</h2>
+      </div>
+
+      <!-- Vehicles -->
+      <h3 class="section-label" data-i18n="settings.vehicles">My vehicles</h3>
+      <ul id="vehicle-list" class="list"></ul>
+      <button type="button" class="btn ghost add-vehicle" id="add-vehicle">
+        <svg class="i"><use href="#i-plus"/></svg><span data-i18n="settings.addVehicle">Add a vehicle</span>
+      </button>
+
+      <form id="vehicle-form" class="panel vehicle-form" novalidate hidden>
+        <div class="panel-head">
+          <span class="panel-icon"><svg class="i"><use href="#i-car"/></svg></span>
+          <div><h3 id="vehicle-form-title">New vehicle</h3></div>
+        </div>
+        <div class="stack-fields">
+          <label class="field">
+            <span data-i18n="vehicle.name">Name</span>
+            <input type="text" id="v-name" maxlength="40" data-i18n-placeholder="vehicle.namePlaceholder">
+          </label>
+          <div class="field">
+            <span data-i18n="vehicle.engine">Engine</span>
+            <div class="segmented" id="v-family">
+              <label><input type="radio" name="v-family" value="essence"><span data-i18n="family.essence">Petrol</span></label>
+              <label><input type="radio" name="v-family" value="diesel"><span data-i18n="family.diesel">Diesel</span></label>
+            </div>
+            <p class="hint" id="v-family-hint"></p>
+          </div>
+          <label class="field">
+            <span><span data-i18n="vehicle.tank">Tank capacity</span> <small data-i18n="common.optional">(optional)</small></span>
+            <div class="suffix"><input type="text" id="v-tank" inputmode="decimal"><em class="unit-vol">L</em></div>
+          </label>
+          <div class="field">
+            <span data-i18n="vehicle.fuels">Fuels offered</span>
+            <div class="check-chips" id="v-fuels"></div>
+            <button type="button" class="link-btn" id="v-all-fuels" data-i18n="vehicle.allFuels">Show fuels from other countries</button>
+            <p class="hint" data-i18n="vehicle.fuelsHint">Untick the ones you never use.</p>
+          </div>
+          <label class="field">
+            <span data-i18n="vehicle.defaultFuel">Default fuel</span>
+            <select id="v-default"></select>
+          </label>
+        </div>
+        <p class="error" id="vehicle-error" role="alert"></p>
+        <div class="actions">
+          <button type="submit" class="btn primary" id="vehicle-save" data-i18n="common.save">Save</button>
+          <button type="button" class="btn" id="vehicle-cancel" data-i18n="common.cancel">Cancel</button>
+          <button type="button" class="btn danger" id="vehicle-delete" data-i18n="common.delete">Delete</button>
+        </div>
+      </form>
+
+      <!-- Language and country -->
+      <h3 class="section-label" data-i18n="settings.region">Language and country</h3>
+      <div class="panel stack-fields">
+        <label class="field">
+          <span data-i18n="settings.language">Language</span>
+          <select data-setting="language"></select>
+        </label>
+        <label class="field">
+          <span data-i18n="settings.country">Country</span>
+          <select data-setting="country"></select>
+        </label>
+        <p class="hint" data-i18n="settings.countryHint">The country sets the names and the list of fuels offered.</p>
+      </div>
+
+      <!-- Appearance -->
+      <h3 class="section-label" data-i18n="settings.appearance">Appearance</h3>
+      <div class="panel stack-fields">
+        <div class="field">
+          <span data-i18n="settings.theme">Theme</span>
+          <div class="segmented" data-setting="theme"></div>
+          <p class="hint" data-i18n="settings.themeHint">“Automatic” follows the light / dark setting of your phone.</p>
+        </div>
+        <div class="field">
+          <span data-i18n="settings.color">Colour</span>
+          <div class="swatches" id="accent" role="radiogroup" data-i18n-aria-label="settings.color" aria-label="Colour"></div>
+        </div>
+        <div class="field">
+          <span data-i18n="settings.textSize">Text size</span>
+          <div class="segmented" data-setting="textSize"></div>
+        </div>
+        <div class="field">
+          <span data-i18n="settings.density">Display density</span>
+          <div class="segmented" data-setting="density"></div>
+          <p class="hint" data-i18n="settings.densityHint">“Compact” reduces margins to show more information on screen.</p>
+        </div>
+      </div>
+
+      <!-- Units -->
+      <h3 class="section-label" data-i18n="settings.units">Units</h3>
+      <div class="panel stack-fields">
+        <label class="field">
+          <span data-i18n="settings.conso">Consumption</span>
+          <select data-setting="consoUnit"></select>
+        </label>
+        <div class="field">
+          <span data-i18n="settings.distance">Distance</span>
+          <div class="segmented" data-setting="distanceUnit"></div>
+        </div>
+        <div class="field">
+          <span data-i18n="settings.volume">Volume</span>
+          <div class="segmented" data-setting="volumeUnit"></div>
+        </div>
+        <label class="field">
+          <span data-i18n="settings.currency">Currency</span>
+          <select data-setting="currency"></select>
+        </label>
+        <div class="field">
+          <span data-i18n="settings.priceDecimals">Price decimals</span>
+          <div class="segmented" data-setting="priceDecimals"></div>
+        </div>
+        <p class="hint" data-i18n="settings.unitsHint">Changing units does not change your data: only the display is converted.</p>
+      </div>
+
+      <!-- Navigation and input -->
+      <h3 class="section-label" data-i18n="settings.nav">Navigation and input</h3>
+      <div class="panel stack-fields">
+        <label class="field">
+          <span data-i18n="settings.startTab">Start screen</span>
+          <select data-setting="startTab"></select>
+        </label>
+        <div class="field">
+          <span data-i18n="settings.tabs">Visible tabs</span>
+          <div class="check-chips" id="visible-tabs"></div>
+          <p class="hint" data-i18n="settings.tabsHint">Hide the tabs you don’t use.</p>
+        </div>
+        <label class="switch flush">
+          <span class="switch-text">
+            <strong data-i18n="settings.defaultFull">“Full tank” on by default</strong>
+            <small data-i18n="settings.defaultFullHint">Turn off if you mostly do partial fill-ups.</small>
+          </span>
+          <input type="checkbox" id="default-full">
+          <span class="switch-ui" aria-hidden="true"></span>
+        </label>
+      </div>
+
+      <!-- Fuels (E85 only) -->
+      <div id="fuels-section">
+        <h3 class="section-label" data-i18n="settings.fuels">Fuels</h3>
+        <div class="panel">
+          <div class="field stepper-field">
+            <span data-i18n="settings.e85">E85 ethanol content</span>
+            <!-- Buttons rather than a slider: scrolling the page cannot change the value by accident. -->
+            <div class="stepper">
+              <button type="button" class="icon-btn" id="e85-minus" data-i18n-aria-label="settings.decrease" aria-label="Decrease">−</button>
+              <output id="e85-value" aria-live="polite"></output>
+              <button type="button" class="icon-btn" id="e85-plus" data-i18n-aria-label="settings.increase" aria-label="Increase">+</button>
+            </div>
+          </div>
+          <p class="hint" data-i18n="settings.e85Hint">The real content varies with the season and the station (65 to 85%).</p>
+        </div>
+      </div>
+
+      <!-- Data -->
+      <h3 class="section-label" data-i18n="data.title">Data</h3>
+      <p class="lead section-lead web-only" data-i18n="data.leadWeb">Everything is stored only in this browser, on this device.</p>
+      <p class="lead section-lead native-only" data-i18n="data.leadApp">Everything is stored only in the app, on this phone.</p>
+
+      <div class="panel summary">
+        <div class="summary-grid" id="data-summary"></div>
+        <div class="web-only"><div class="backup-status" id="backup-status"></div></div>
+      </div>
+
+      <div class="panel native-only">
+        <div class="panel-head">
+          <span class="panel-icon"><svg class="i"><use href="#i-cloud"/></svg></span>
+          <div>
+            <h3 data-i18n="data.androidTitle">Automatic Android backup</h3>
+            <p data-i18n-html="data.androidText"></p>
+          </div>
+        </div>
+        <p class="hint" data-i18n="data.androidHint"></p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-icon"><svg class="i"><use href="#i-shield"/></svg></span>
+          <div>
+            <h3 data-i18n="data.backupTitle">Full backup</h3>
+            <p data-i18n-html="data.backupText"></p>
+          </div>
+        </div>
+        <div class="stack">
+          <button type="button" class="btn primary" id="export-json">
+            <svg class="i"><use href="#i-download"/></svg><span class="web-only" data-i18n="data.download">Download backup</span><span class="native-only" data-i18n="data.share">Save / send backup</span>
+          </button>
+          <button type="button" class="btn" id="import-json">
+            <svg class="i"><use href="#i-upload"/></svg><span data-i18n="data.restore">Restore from a file</span>
+          </button>
+          <p class="hint center" data-i18n="data.restoreHint">Restoring replaces the current fill-ups and expenses.</p>
+        </div>
+        <input type="file" id="import-file" accept="application/json,.json,text/plain,.txt" hidden>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-icon"><svg class="i"><use href="#i-table"/></svg></span>
+          <div>
+            <h3 data-i18n="data.excelTitle">Excel export</h3>
+            <p data-i18n="data.excelText"></p>
+          </div>
+        </div>
+        <div class="row-list">
+          <button type="button" class="row-btn" id="export-csv">
+            <span><strong data-i18n="data.csvFills">Fill-ups</strong><small data-i18n="data.csvFillsSub"></small></span>
+            <svg class="i"><use href="#i-download"/></svg>
+          </button>
+          <button type="button" class="row-btn" id="export-expenses-csv">
+            <span><strong data-i18n="data.csvExpenses">Expenses</strong><small data-i18n="data.csvExpensesSub"></small></span>
+            <svg class="i"><use href="#i-download"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel danger-zone">
+        <div class="panel-head">
+          <span class="panel-icon"><svg class="i"><use href="#i-trash"/></svg></span>
+          <div>
+            <h3 data-i18n="data.clearTitle">Erase everything</h3>
+            <p data-i18n="data.clearText"></p>
+          </div>
+        </div>
+        <button type="button" class="btn danger" id="clear-all" data-i18n="data.clearButton">Erase all fill-ups and expenses</button>
+      </div>
+
+      <!-- About -->
+      <h3 class="section-label" data-i18n="about.title">About</h3>
+      <div class="row-list">
+        <a class="row-btn" href="https://github.com/Atrena/CarConso" target="_blank" rel="noopener">
+          <svg class="i"><use href="#i-code"/></svg>
+          <span><strong data-i18n="about.source">Source code on GitHub</strong><small data-i18n="about.sourceSub"></small></span>
+          <svg class="i"><use href="#i-external"/></svg>
+        </a>
+        <a class="row-btn" id="privacy-link" href="https://atrena.github.io/CarConso/privacy.html" target="_blank" rel="noopener">
+          <svg class="i"><use href="#i-shield"/></svg>
+          <span><strong data-i18n="about.privacy">Privacy</strong><small data-i18n="about.privacySub"></small></span>
+          <svg class="i"><use href="#i-external"/></svg>
+        </a>
+      </div>
+      <p class="about"><span id="app-version"></span> · <span data-i18n="about.offline">works offline</span><br><span data-i18n="about.credits">Built with help from Claude (Anthropic)</span></p>
+    </section>
+  </main>
+
+  <nav class="tabbar" role="tablist">
+    <button id="nav-add" class="active" data-tab="add" role="tab"><svg class="i"><use href="#i-plus"/></svg><span data-i18n="nav.add">Fill-up</span></button>
+    <button id="nav-history" data-tab="history" role="tab"><svg class="i"><use href="#i-list"/></svg><span data-i18n="nav.history">History</span></button>
+    <button id="nav-expenses" data-tab="expenses" role="tab"><svg class="i"><use href="#i-wrench"/></svg><span data-i18n="nav.expenses">Expenses</span></button>
+    <button id="nav-stats" data-tab="stats" role="tab"><svg class="i"><use href="#i-chart"/></svg><span data-i18n="nav.stats">Stats</span></button>
+    <button id="nav-sim" data-tab="sim" role="tab"><svg class="i"><use href="#i-calc"/></svg><span data-i18n="nav.sim">Simulator</span></button>
+  </nav>
+
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="vendor/chart.umd.min.js"></script>
+  <script src="i18n.js"></script>
+  <script src="stats.js"></script>
+  <script src="storage.js"></script>
+  <script src="native.js"></script>
+  <script src="app.js"></script>
+  <script src="expenses.js"></script>
+  <script src="stats-view.js"></script>
+  <script src="sim-view.js"></script>
+  <script src="data-view.js"></script>
+  <script src="settings-view.js"></script>
+</body>
+</html>
