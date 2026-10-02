@@ -1,0 +1,55 @@
+name: Bug report / Signaler un bug
+description: Something does not work as expected. / Quelque chose ne marche pas comme prévu.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! You can write in English or French.
+        Merci de prendre le temps de signaler un bug ! Tu peux écrire en français ou en anglais.
+
+        ⚠️ Do not paste your backup file or personal data here: issues are public.
+        Ne colle pas ton fichier de sauvegarde ni de données personnelles ici : les issues sont publiques.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Version used / Version utilisée
+      options:
+        - Android app (Google Play)
+        - Android app (APK from GitHub)
+        - Web app (browser / navigateur)
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version / Version de l'app
+      description: Settings › About / Paramètres › À propos
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Phone or browser / Téléphone ou navigateur
+      placeholder: "Pixel 8, Android 16 / Chrome 140 on Windows"
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened? / Que s'est-il passé ?
+      description: What did you expect instead? / Qu'attendais-tu à la place ?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / Étapes pour reproduire
+      placeholder: |
+        1. Go to… / Aller dans…
+        2. Tap… / Appuyer sur…
+        3. See… / Voir…
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / Captures d'écran
+      description: Optional. Drag and drop images here. / Facultatif. Glisse les images ici.

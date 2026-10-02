@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security issue / Faille de sécurité
+    url: https://github.com/Atrena/CarConso/security/advisories/new
+    about: Report it privately, not in a public issue. / Signale-la en privé, pas dans une issue publique.

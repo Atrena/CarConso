@@ -1,0 +1,25 @@
+name: Feature idea / Proposer une idée
+description: Suggest an improvement or a new feature. / Suggérer une amélioration ou une nouvelle fonction.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You can write in English or French. / Tu peux écrire en français ou en anglais.
+  - type: textarea
+    id: need
+    attributes:
+      label: What would you like to do? / Que voudrais-tu pouvoir faire ?
+      description: Describe the need rather than the solution. / Décris le besoin plutôt que la solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How could it work? / Comment ça pourrait marcher ?
+      description: Optional. / Facultatif.
+  - type: input
+    id: country
+    attributes:
+      label: Country (for fuels, units) / Pays (pour les carburants, unités)
+      description: Optional. / Facultatif.
