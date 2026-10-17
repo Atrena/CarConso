@@ -2,7 +2,8 @@
 
 // Fuels: family (only fuels of the same family can be mixed) and reference
 // ethanol content (%). Names depend on the country (see COUNTRIES in i18n.js).
-// REG / MID / PREM are the North American grades (usually E10).
+// REG / MID / PREM are the North American grades (usually E10), E27 / E100 the
+// Brazilian petrol and ethanol.
 const FUELS = {
   E5:    { family: 'essence', ethanol: 5 },
   E10:   { family: 'essence', ethanol: 10 },
@@ -13,6 +14,8 @@ const FUELS = {
   MID:   { family: 'essence', ethanol: 10 },
   PREM:  { family: 'essence', ethanol: 10 },
   E85:   { family: 'essence', ethanol: 75 },
+  E27:   { family: 'essence', ethanol: 27 },
+  E100:  { family: 'essence', ethanol: 100 },
   B7:    { family: 'diesel',  ethanol: 0 },
   B7P:   { family: 'diesel',  ethanol: 0 },
 };
@@ -42,10 +45,6 @@ for (const [k, months] of Object.entries({ monthly: 1, quarterly: 3, semiannual:
     get per() { return t(`recPer.${k}`); },
   };
 }
-
-// Estimated extra consumption per point of ethanol, only used for a fuel that
-// was never measured (≈ +23% for E85 compared with E10).
-const ETHANOL_OVERCONSUMPTION = 0.0035;
 
 // A segment is assigned to a fuel when it contains at least 80% of it.
 const DOMINANT_SHARE = 0.8;
@@ -241,84 +240,11 @@ function forecast(fills, expenses, today) {
   };
 }
 
-// Usual price difference (per litre) from the base fuel of the family (E10 or
-// regular for petrol, diesel for diesel). Only used to estimate the price of a
-// fuel never bought, so that it still appears in the simulator.
-const PRICE_OFFSETS = {
-  E5: 0.05, E10: 0, SP95P: 0.12, SP98: 0.08, SP98P: 0.18, REG: 0, MID: 0.1, PREM: 0.2, E85: -0.95,
-  B7: 0, B7P: 0.10,
-};
-
-// Estimated prices of the `keys` fuels with no known price, from the known
-// prices of the same family (average of the base price estimates). E85 does not
-// follow petrol prices: it is only used as a reference if it is the only price.
-function estimatePrices(known, keys) {
-  const estimates = {};
-  for (const k of keys) {
-    if (known[k] > 0) continue;
-    let refs = Object.keys(known).filter(r => known[r] > 0 && FUELS[r].family === FUELS[k].family);
-    if (refs.some(r => r !== 'E85')) refs = refs.filter(r => r !== 'E85');
-    if (!refs.length) continue;
-    const base = sum(refs, r => known[r] - PRICE_OFFSETS[r]) / refs.length;
-    const price = base + PRICE_OFFSETS[k];
-    if (price > 0) estimates[k] = price;
-  }
-  return estimates;
-}
-
-// Last price per litre paid for each fuel.
-function lastPrices(fills) {
-  const prices = {};
-  for (const f of sortFills(fills)) for (const p of f.parts) prices[p.fuel] = p.total / p.litres;
-  return prices;
-}
-
 function mainFamily(fills) {
   const byFamily = {};
   for (const f of fills) byFamily[fillFamily(f)] = (byFamily[fillFamily(f)] || 0) + fillLitres(f);
   const keys = Object.keys(byFamily);
   return keys.length ? keys.sort((a, b) => byFamily[b] - byFamily[a])[0] : 'essence';
-}
-
-// Ranks the fuels of the car's family by cost per 100 km, from the measured
-// consumption (or estimated from the ethanol content if never measured).
-// prices: { E10: 1.79, E85: 0.82, ... } per litre; only prices > 0 are compared.
-function simulate(fills, prices, family = mainFamily(fills)) {
-  const segments = computeSegments(fills).filter(s => s.family === family);
-  if (!segments.length) return null;
-
-  const groupList = groupSegments(segments);
-  const groups = Object.fromEntries(groupList.map(g => [g.key, g]));
-  // Never measured: start from the measured group with the closest ethanol content.
-  const conso = (key, ethanol) => {
-    if (groups[key]) return { l100: groups[key].l100, estimated: false };
-    const ref = groupList.reduce((a, b) => (Math.abs(b.ethanol - ethanol) < Math.abs(a.ethanol - ethanol) ? b : a));
-    return { l100: ref.l100 * (1 + ETHANOL_OVERCONSUMPTION * (ethanol - ref.ethanol)), estimated: true };
-  };
-
-  const candidates = FUEL_ORDER
-    .filter(k => FUELS[k].family === family && prices[k] > 0)
-    .map(k => ({ key: k, label: FUELS[k].label, price: prices[k], ...conso(k, FUELS[k].ethanol) }));
-
-  if (family === 'essence' && prices.E10 > 0 && prices.E85 > 0) {
-    const ethanol = (FUELS.E10.ethanol + FUELS.E85.ethanol) / 2;
-    candidates.push({
-      key: 'E10+E85', label: `${FUELS.E10.label} + ${FUELS.E85.label}`, mix: '50/50',
-      price: (prices.E10 + prices.E85) / 2, ...conso('E10+E85', ethanol),
-    });
-  }
-
-  const rows = candidates
-    .map(c => ({ ...c, per100: c.l100 * c.price }))
-    .sort((a, b) => a.per100 - b.per100);
-
-  // E85 price below which it beats the best fuel without E85.
-  let e85BreakEven = null;
-  const e85 = rows.find(r => r.key === 'E85');
-  const bestOther = rows.find(r => r.key !== 'E85' && r.key !== 'E10+E85');
-  if (e85 && bestOther) e85BreakEven = { price: bestOther.per100 / e85.l100, versus: bestOther.label };
-
-  return { family, rows, e85BreakEven };
 }
 
 // today: today's ISO date; since: start of the period, or null for the whole history.

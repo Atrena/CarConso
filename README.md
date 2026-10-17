@@ -4,7 +4,7 @@
 
 <p align="center">
   <strong>Fuel consumption and cost tracker for your car</strong><br>
-  Simple, offline, no account, no ads. In English and French.
+  Simple, offline, no account, no ads. In 7 languages.
 </p>
 
 <p align="center">
@@ -24,13 +24,13 @@
 | 🚗 **Several vehicles** | Petrol or diesel, tank capacity, fuels offered, default fuel. |
 | 🔧 **Expenses** | Service, insurance, tolls… one-off or recurring (monthly, yearly…). |
 | 📊 **Statistics** | Average consumption, cost per km or mile, comparison by fuel, monthly spending, forecast, period filter. |
-| 🧮 **Simulator** | Which fuel is cheapest per 100 km at today's pump prices, and the E85 break-even price. |
-| 🌍 **Language and country** | English or French, detected automatically. The country sets the local fuel names and list (SP-95 in France, Regular / Premium in the US, Super E10 in Germany…) and the default units. |
+| 🌍 **Language and country** | English, French, German, Spanish, Italian, Portuguese or Dutch, detected automatically. The country sets the local fuel names and list (SP-95 in France, Regular / Premium in the US, Super E10 in Germany, Gasolina comum / Etanol in Brazil…) and the default units. |
 | 🎨 **Customisation** | Light / dark theme, colour, text size, compact layout, units (L/100 km, km/L, mpg, km or miles, litres or US gallons, currency), start screen, visible tabs. |
 | 💾 **Data** | Backup / restore to a file, CSV exports for Excel. In the Android app: automatic backup with the phone's Google backup. |
 
 Supported countries: France, Belgium, Luxembourg, Switzerland, Canada, United Kingdom,
-Ireland, United States, Germany, Austria. Other countries use international fuel names.
+Ireland, United States, Germany, Austria, Spain, Italy, Portugal, Netherlands, Mexico,
+Brazil. Other countries use international fuel names.
 
 ## Privacy
 
@@ -71,11 +71,12 @@ app (through [Capacitor](https://capacitorjs.com/)).
 
 ```
 index.html, style.css      user interface
-i18n.js                    translations, countries, fuel names
-stats.js                   calculations (consumption, blends, forecast, simulator)
+i18n.js                    languages, countries, fuel names
+locales/                   texts of each language (fr, en, de, es, it, pt, nl)
+stats.js                   calculations (consumption, blends, forecast)
 storage.js                 local storage, settings, import / export
 native.js                  Android-only features
-app.js, *-view.js          screens (Fill-up, History, Expenses, Stats, Simulator, Settings)
+app.js, *-view.js          screens (Fill-up, History, Expenses, Stats, Settings)
 vendor/                    Chart.js
 android/                   Android project (Capacitor)
 assets/, store/            icons, splash screen, Google Play images and listing (store/PLAY_STORE.md)
@@ -103,9 +104,10 @@ Signing uses `android/keystore.properties` and a `.jks` key, which are never pus
 
 ### Translations
 
-All texts live in `i18n.js` (`MESSAGES.fr` and `MESSAGES.en`), and the static texts of
-`index.html` are tagged with `data-i18n`. Fuel names and default units per country are
-in `COUNTRIES`. Contributions for new languages or countries are welcome.
+The texts of each language live in `locales/<language>.js` (`MESSAGES` and the
+international `FUEL_NAMES`), and the static texts of `index.html` are tagged with
+`data-i18n`. Fuel names and default units per country are in `COUNTRIES` (`i18n.js`).
+Corrections from native speakers, and new languages or countries, are welcome.
 
 ## License
 

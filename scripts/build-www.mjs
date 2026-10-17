@@ -10,5 +10,5 @@ const files = readdirSync(root).filter(f => /\.(html|css|js|webmanifest)$/.test(
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out);
 for (const f of files) cpSync(join(root, f), join(out, f));
-for (const dir of ['icons', 'vendor']) cpSync(join(root, dir), join(out, dir), { recursive: true });
-console.log(`www/: ${files.length} files + icons/ + vendor/`);
+for (const dir of ['icons', 'vendor', 'locales']) cpSync(join(root, dir), join(out, dir), { recursive: true });
+console.log(`www/: ${files.length} files + icons/ + vendor/ + locales/`);

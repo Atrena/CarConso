@@ -4,7 +4,7 @@
 
 <p align="center">
   <strong>Suivi de consommation et de coûts pour ta voiture</strong><br>
-  Simple, hors ligne, sans compte et sans publicité. En français et en anglais.
+  Simple, hors ligne, sans compte et sans publicité. En 7 langues.
 </p>
 
 <p align="center">
@@ -24,13 +24,12 @@
 | 🚗 **Plusieurs véhicules** | Essence ou gazole, capacité du réservoir, carburants proposés, carburant par défaut. |
 | 🔧 **Frais** | Entretien, assurance, péages… ponctuels ou récurrents (mensuels, annuels…). |
 | 📊 **Statistiques** | Conso moyenne, coût au km, comparaison par carburant, dépenses mensuelles, prévisions, filtre par période. |
-| 🧮 **Simulateur** | Quel carburant revient le moins cher aux 100 km selon les prix à la pompe, et prix limite de rentabilité de l'E85. |
-| 🌍 **Langue et pays** | Français ou anglais, détecté automatiquement. Le pays fixe le nom et la liste des carburants (SP-95 en France, Regular / Premium aux États-Unis, Super E10 en Allemagne…) et les unités par défaut. |
+| 🌍 **Langue et pays** | Français, anglais, allemand, espagnol, italien, portugais ou néerlandais, détecté automatiquement. Le pays fixe le nom et la liste des carburants (SP-95 en France, Regular / Premium aux États-Unis, Super E10 en Allemagne, Gasolina comum / Etanol au Brésil…) et les unités par défaut. |
 | 🎨 **Personnalisation** | Thème clair / sombre, couleur, taille du texte, affichage compact, unités (L/100 km, km/L, mpg, km ou miles, litres ou gallons US, devise), écran d'ouverture, onglets affichés. |
 | 💾 **Données** | Sauvegarde / restauration par fichier, exports CSV pour Excel. Dans l'app Android : sauvegarde automatique avec la sauvegarde Google du téléphone. |
 
 Pays pris en charge : France, Belgique, Luxembourg, Suisse, Canada, Royaume-Uni, Irlande,
-États-Unis, Allemagne, Autriche. Les autres pays utilisent des noms de carburants internationaux.
+États-Unis, Allemagne, Autriche, Espagne, Italie, Portugal, Pays-Bas, Mexique, Brésil. Les autres pays utilisent des noms de carburants internationaux.
 
 ## Confidentialité
 

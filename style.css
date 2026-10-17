@@ -408,29 +408,6 @@ th { color: var(--text-2); font-weight: 600; font-size: calc(12px * var(--fs)); 
 tr:last-child td { border-bottom: 0; }
 td.best { color: var(--accent); font-weight: 700; }
 
-/* ========== Simulator ========== */
-
-.sim-prices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-@media (min-width: 620px) { .sim-prices { grid-template-columns: repeat(3, 1fr); } }
-#sim-result .table-wrap { border: 0; border-radius: 0; }
-#sim-result th, #sim-result td { padding: 10px 6px; }
-#sim-result th:first-child, #sim-result td:first-child { padding-left: 0; }
-#sim-result th:last-child, #sim-result td:last-child { padding-right: 0; }
-#sim-result th { background: none; }
-#sim-result td .tag { display: block; }
-@media (max-width: 359px) { #sim-result th, #sim-result td { padding-left: 3px; padding-right: 3px; } }
-.winner {
-  display: flex; align-items: center; gap: 12px;
-  padding: 16px; margin-bottom: 14px; border-radius: var(--radius);
-  background: var(--accent); color: var(--accent-contrast);
-}
-.winner .label { font-size: calc(13px * var(--fs)); opacity: .85; font-weight: 600; }
-.winner strong { display: block; font-size: calc(20px * var(--fs)); }
-.winner .price { margin-left: auto; text-align: right; font-size: calc(13px * var(--fs)); }
-.winner .price b { display: block; font-size: calc(20px * var(--fs)); font-variant-numeric: tabular-nums; }
-.verdict { margin: 12px 0 0; font-size: calc(15px * var(--fs)); line-height: 1.5; }
-.verdict strong { color: var(--accent); }
-.tag { font-size: calc(11px * var(--fs)); color: var(--text-2); font-weight: 500; }
 .nowrap { white-space: nowrap; }
 
 /* ========== Settings ========== */

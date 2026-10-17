@@ -2,7 +2,7 @@
 
 const $ = sel => document.querySelector(sel);
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
 const SOURCE_URL = 'https://github.com/Atrena/CarConso';
 
 const numberFormats = {};
@@ -146,7 +146,6 @@ const TAB_RENDERERS = {
   history: () => renderHistory(),
   expenses: () => renderExpenses(),
   stats: () => renderStats(),
-  sim: () => renderSimulator(),
   settings: () => renderSettings(),
 };
 let currentTab = 'add';

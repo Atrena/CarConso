@@ -1,19 +1,25 @@
 // Offline cache of the website (the Android app does not need it): every app
 // file is cached on install.
-const CACHE = 'carconso-v23';
+const CACHE = 'carconso-v24';
 const APP_SHELL = [
   './',
   'index.html',
   'style.css',
   'vendor/chart.umd.min.js',
   'i18n.js',
+  'locales/fr.js',
+  'locales/en.js',
+  'locales/de.js',
+  'locales/es.js',
+  'locales/it.js',
+  'locales/pt.js',
+  'locales/nl.js',
   'stats.js',
   'storage.js',
   'native.js',
   'app.js',
   'expenses.js',
   'stats-view.js',
-  'sim-view.js',
   'data-view.js',
   'settings-view.js',
   'confidentialite.html',

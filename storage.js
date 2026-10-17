@@ -21,9 +21,9 @@ const DENSITIES = ['normal', 'compact'];
 const CONSO_UNITS = ['l100', 'kml', 'mpg-uk', 'mpg-us'];
 const DISTANCE_UNITS = ['km', 'mi'];
 const VOLUME_UNITS = ['L', 'gal'];
-const CURRENCIES = ['EUR', 'CHF', 'GBP', 'USD', 'CAD'];
-const START_TABS = ['add', 'history', 'expenses', 'stats', 'sim'];
-const OPTIONAL_TABS = ['expenses', 'sim'];
+const CURRENCIES = ['EUR', 'CHF', 'GBP', 'USD', 'CAD', 'MXN', 'BRL'];
+const START_TABS = ['add', 'history', 'expenses', 'stats'];
+const OPTIONAL_TABS = ['expenses'];
 
 const DEFAULT_SETTINGS = {
   language: 'en', country: 'OTHER',
@@ -129,8 +129,12 @@ function normalize({ fills, expenses, vehicles, settings }) {
   return { fills, expenses, vehicles, settings };
 }
 
-// French Excel expects ";" and a decimal comma, English Excel "," and a dot.
-const csvFormat = () => (LANG === 'fr' ? { sep: ';', decimal: ',' } : { sep: ',', decimal: '.' });
+// Excel expects ";" where the decimal separator is a comma (French, German…),
+// and "," with a dot (English).
+const csvFormat = () => {
+  const decimal = new Intl.NumberFormat(LOCALE).format(1.5).includes(',') ? ',' : '.';
+  return { sep: decimal === ',' ? ';' : ',', decimal };
+};
 // A text starting with = + - @ would run as a formula in Excel (vehicle name or
 // note from an imported backup): an apostrophe keeps it as text.
 const csvCell = c => `"${String(c).replace(/^[=+\-@\t\r]/, "'$&").replace(/"/g, '""')}"`;

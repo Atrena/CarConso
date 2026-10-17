@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-CarConso is a bilingual (French / English) app, mobile first, for tracking fuel consumption and car costs. **One codebase ships twice**:
+CarConso is a multilingual app (French, English, German, Spanish, Italian, Portuguese, Dutch), mobile first, for tracking fuel consumption and car costs. **One codebase ships twice**:
 - **Website / PWA** on GitHub Pages (https://atrena.github.io/CarConso/, repo Atrena/CarConso, branch `main`, root `/`). Every push to `main` redeploys automatically, so unfinished work goes on another branch.
 - **Android app** for the Play Store, built with Capacitor 8 (`android/`, app id `io.github.atrena.carconso`).
 
 The web code is vanilla HTML/CSS/JS at the repo root, with no bundler and no test suite. Chart.js 4.4.1 is vendored in `vendor/` (same file as cdnjs, sha384 `bs/nf9Fbd…`). npm is only used for Capacitor.
 
-**Language rules.** Code, comments, docs (README.md, CLAUDE.md), commit messages and release notes are in **English**. The UI is bilingual: every user-facing string goes through `i18n.js` and must be added to both `MESSAGES.fr` and `MESSAGES.en`. Never hard-code UI text in JS or HTML. `README.fr.md` and `confidentialite.html` are the French counterparts of `README.md` and `privacy.html`; keep each pair in sync.
+**Language rules.** Code, comments, docs (README.md, CLAUDE.md), commit messages and release notes are in **English**. The UI is translated: every user-facing string goes through `t()` and must be added to **all seven** `locales/*.js` files (`MESSAGES.xx`; English is the fallback, but no key should be missing). Never hard-code UI text in JS or HTML. `README.fr.md` and `confidentialite.html` are the French counterparts of `README.md` and `privacy.html`; keep each pair in sync.
 
 ## Commands
 
@@ -20,7 +20,7 @@ The web code is vanilla HTML/CSS/JS at the repo root, with no bundler and no tes
   - `JAVA_HOME="/c/Program Files/Microsoft/jdk-21.0.12.101-hotspot"`
   - `ANDROID_HOME="$LOCALAPPDATA/Android/Sdk"`
 - **Build and run**:
-  - `npm run build` copies the web files to `www/`; `scripts/build-www.mjs` copies root `*.html|css|js|webmanifest` (except `sw.js`) plus `icons/` and `vendor/`.
+  - `npm run build` copies the web files to `www/`; `scripts/build-www.mjs` copies root `*.html|css|js|webmanifest` (except `sw.js`) plus `icons/`, `vendor/` and `locales/`.
   - `npx cap sync android` copies `www/` into the Android project.
   - `npm run android` builds and runs on a device or emulator. The AVD is `Medium_Phone_API_37.0`; `adb` is in `$ANDROID_HOME/platform-tools`.
   - `npm run android:bundle` builds the Play Store `.aab`. It is signed only if `android/keystore.properties` exists (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`). That file and `*.jks` are git-ignored and are created by the user, never by Claude.
@@ -42,38 +42,36 @@ The web code is vanilla HTML/CSS/JS at the repo root, with no bundler and no tes
 - Everything must be configurable inside the app, never through config files. The user wants anyone to be able to use it.
 - The Android manifest declares **no permissions** (not even INTERNET). The privacy page (`confidentialite.html`, linked from the Play listing) says so; keep both in sync.
 - Commits end with the trailer `Co-Authored-By: Claude <noreply@anthropic.com>` (the user asked to be credited alongside Claude).
-- Check translation keys after editing texts: every `t('key')`, `tn('key', n)` and `data-i18n*="key"` must exist in both languages.
+- Check translation keys after editing texts: every `t('key')`, `tn('key', n)` and `data-i18n*="key"` must exist in all seven locales, with the same `{params}`.
 - Git commits use the GitHub noreply email (`130003506+Atrena@users.noreply.github.com`), never the user's personal address.
 
 ## Architecture
 
 Classic `<script>` tags (not modules) share global state. Load order matters:
 
-`vendor/chart.umd.min.js` → `i18n.js` → `stats.js` → `storage.js` → `native.js` → `app.js` → `expenses.js` → `stats-view.js` → `sim-view.js` → `data-view.js` → `settings-view.js`
+`vendor/chart.umd.min.js` → `i18n.js` → `locales/*.js` → `stats.js` → `storage.js` → `native.js` → `app.js` → `expenses.js` → `stats-view.js` → `data-view.js` → `settings-view.js`
 
-- **i18n.js**: translations and regional data.
-  - `t(key, params)` replaces `{name}` placeholders, and `tn(key, n)` picks `key.one` / `key.other` (in French 0 is singular).
+- **i18n.js**: translation logic and regional data. `LANGUAGES` lists the 7 languages; each `locales/xx.js` sets `MESSAGES.xx` and `FUEL_NAMES.xx` (international fuel names).
+  - `t(key, params)` replaces `{name}` placeholders, and `tn(key, n)` picks `key.one` / `key.other` with `Intl.PluralRules` (in French and Portuguese 0 is singular).
   - `translatePage()` fills the elements tagged `data-i18n` (text), `data-i18n-html` (trusted markup from MESSAGES only), `data-i18n-placeholder` and `data-i18n-aria-label`. Elements whose text changes at runtime (form titles, submit buttons) have no `data-i18n` and are set in JS.
-  - `COUNTRIES` lists, per country, the fuels sold there, their local names (optionally per language) and the default units/currency. `fuelLabel(key)` falls back to the international `FUEL_NAMES`.
+  - `COUNTRIES` lists, per country, the fuels sold there, their local names (optionally per language, keyed by language code: a missing language falls back to the international name) and the default units/currency. `fuelLabel(key)` falls back to the international `FUEL_NAMES`.
   - `setLocale(language, country)` sets `LANG`, `COUNTRY` and `LOCALE` (e.g. `fr-BE`), which are used for every `Intl` format.
   - Detection (`detectLanguage`, `detectCountry`) only runs when the setting is missing. On the very first launch (no saved settings at all), the country's defaults are applied too. Changing country in Settings asks before applying its currency/units.
-- **stats.js**: pure calculation functions with no DOM access. It holds the fuel catalogue (`FUELS`, each with a `family` (essence/diesel), an `ethanol` % and a `label` getter that follows the country; `REG`/`MID`/`PREM` are the North American grades; `FUELS.E85.ethanol` is overwritten from settings). `FAMILIES`, `EXPENSE_CATEGORIES` and `RECURRENCES` labels are getters over `t()` too and the expense categories and recurrences. It also contains the core algorithms:
+- **stats.js**: pure calculation functions with no DOM access. It holds the fuel catalogue (`FUELS`, each with a `family` (essence/diesel), an `ethanol` % and a `label` getter that follows the country; `REG`/`MID`/`PREM` are the North American grades, `E27`/`E100` the Brazilian petrol and ethanol; `FUELS.E85.ethanol` is overwritten from settings). `FAMILIES`, `EXPENSE_CATEGORIES` and `RECURRENCES` labels are getters over `t()` too and the expense categories and recurrences. It also contains the core algorithms:
   - Fill-to-fill consumption (`computeSegments`).
     - Partial fills (`full: false`) accumulate until the next full fill.
     - The first full fill (and the first one after a fuel-family change) is only a reference and produces no consumption figure. Its distance is optional (it may be 0).
     - A fill's litres replace what was burned over the distance before it. But the fuel actually burned on a segment is what was in the tank: the previous segment's fills plus partial fills on the way, not the closing fill. Per-fuel grouping, ethanol and per-segment cost use that burned mix.
     - A segment's L/100 is displayed on its `startId` fill (the fill whose fuel was burned) in the history, the CSV and the chart. The latest full fill shows "en cours".
-  - `estimatePrices` (`PRICE_OFFSETS`) fills in plausible prices for fuels never bought, so every fuel appears in the simulator.
   - Mix grouping (`mixGroup`). A fuel at ≥80% (`DOMINANT_SHARE`) is the dominant one; below that the label is "Mélange A + B". Only fuels of the same family can be mixed.
   - Recurring expenses (`occurrences`/`expandExpenses`, using `addMonths` capped at month end).
   - `forecast`: the average of the last 3 complete months (a first month that does not start on the 1st is skipped) plus the monthly equivalent of recurring expenses.
   - Fuel cost per km (Stats) is the cost of the measured segments over their distance, never "money spent / distance" (that would count the reference fill and the fuel still in the tank).
-  - `simulate`: compares compatible fuels. An unmeasured fuel is estimated from the measured group closest in ethanol, × (1 + 0.0035 × Δethanol).
 - **storage.js**: localStorage persistence (`Storage.load/save`), validation (`isValidFill/Expense/Vehicle`), `normalize`, import/export.
   - Settings and their allowed values (`ACCENTS`, `CONSO_UNITS`, `VOLUME_UNITS`, `CURRENCIES`, `START_TABS`…) live here. `cleanSettings` resets anything invalid. Lookups into the catalogues use `isKey` (own properties only).
   - `normalize` guarantees there is at least one vehicle, attaches orphan data to it and keeps `activeVehicleId` valid.
   - Backups use JSON format v3 (`{fills, expenses, vehicles}`). `parseImport` still accepts v1/v2 (no vehicles).
-  - CSV export follows the language: `;` and a decimal comma in French, `,` and a dot in English, plus a BOM. Headers are translated. Values are always in km, litres and L/100 km.
+  - CSV export follows the locale: `;` where the decimal separator is a comma (French, German…), `,` with a dot (e.g. en-US), plus a BOM. Headers are translated. Values are always in km, litres and L/100 km.
   - A vehicle may have `extraFuels` (fuels from other countries added by hand) besides `hiddenFuels`; `visibleFuels(v)` = family ∩ (country fuels ∪ extraFuels) − hiddenFuels.
 - **native.js**: the Android layer. `IS_APP` is false on the web, where nothing else in the file runs. In the app (it uses `Capacitor.Plugins.*` directly, with no imports):
   - It wraps `Storage.save` to mirror the data into Android `Preferences`, which is included in Android Auto Backup. On first launch it restores that mirror if localStorage is empty, then reloads.
@@ -92,7 +90,7 @@ Classic `<script>` tags (not modules) share global state. Load order matters:
   - `persist()` saves, then updates the backup dot. Call it after any data mutation.
   - `refreshAll()` rebuilds every text after a language, country or unit change. Inputs typed in miles or gallons go through `inputValue()`, which keeps the exact stored value when the field was not touched.
   - Tab routing uses `TAB_RENDERERS`. Each `*-view.js` registers its render function there. The start tab is shown on `DOMContentLoaded`. The file also contains the fill form (odometer ↔ distance sync in the display unit, multi-fuel parts).
-- **expenses.js, stats-view.js, sim-view.js, settings-view.js**: one file per tab (Frais, Stats, Simulateur, Paramètres). In settings-view.js, settings controls are generated from `SETTING_CHOICES` via `data-setting` attributes.
+- **expenses.js, stats-view.js, settings-view.js**: one file per tab (Frais, Stats, Paramètres). The Simulator tab was removed in 1.1.0; a saved `startTab: 'sim'` is reset by `cleanSettings`. In settings-view.js, settings controls are generated from `SETTING_CHOICES` via `data-setting` attributes.
 - **data-view.js**: the Data section of Settings. It handles file export/import (`confirmAndRestore`: a v3 import replaces everything, v1/v2 only the active vehicle's data) and the 30-day backup reminder (web only). There is no cloud sync in the web version; `Storage.load` deletes the old Drive keys (`OBSOLETE_KEYS`).
 - **sw.js**: web only, not registered in the app. Network-first with cache fallback.
 
